@@ -1,0 +1,589 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WhatsApp Design</title>
+    <style>
+         @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap');
+        .logout-button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            padding: 10px 20px;
+            background: lightskyblue;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+            font-size: 16px;
+            font-family: 'merriweather', serif;
+        }
+        .logout-button:hover {
+            background: deepskyblue; /* Darker red on hover */
+        }
+        body {
+            background-image: url('/static/back.jpg');
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #ece5dd;
+
+        }
+        #container {
+            width: 60%;
+            height: 80vh;
+            display: flex;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            background-color: #ffffff;
+            border-radius: 30px;
+            overflow: hidden;
+        }
+        #sidebar {
+            width: 35%;
+            border-right: 1px solid #ccc;
+            background-color: #f0f0f0;
+            padding: 0;
+            position: relative;
+            height: 100%;
+        }
+        #sidebar h2 {
+            font-size: 24px;
+            font-weight: bold;
+            color: white;
+            background-color: #5e8c8c;
+            padding: 10px 15px;
+            border-bottom: 2px solid #ccc;
+            margin: 0;
+            border-radius: 0 0 5px 5px;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        #conversation-list {
+            background-color: #2F4F4F;
+            padding: 15px;
+            height: calc(100% - 56px); /* Adjust based on the height of the sticky header */
+            overflow-y: auto;
+        }
+        #chat {
+            width: 65%;
+            background-image: url('/static/conv_list.jpg');
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        #chat-header {
+            padding: 15px;
+            border-bottom: 1px solid #ccc;
+            background-color: #5e8c8c;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        #chat-header h3 {
+            margin: 0;
+            color: white;
+        }
+        .label-dropdown {
+            color: #2F4F4F;;
+            margin-left: 10px;
+        }
+        .conversation {
+            padding: 15px;
+            border-bottom: 1px solid #ccc;
+            cursor: pointer;
+            color: #d4dacf;
+
+        }
+        .conversation .conversation-label {
+            font-size: 14px;
+            font-weight: bold;
+            border-radius: 5px;
+            padding: 5px 10px;
+            margin-top: 5px;
+        }
+        .conversation.active {
+            background-color: DarkGrey;
+        }
+        .conversation .sender-number {
+            font-weight: bold;
+            font-size: 15px;
+            color:white;
+        }
+        .conversation .last-message {
+            color: #eef2e9;
+        }
+        #message-container {
+            padding: 10px;
+            overflow-y: auto;
+            flex-grow: 1;
+        }
+        .message {
+            margin-bottom: 10px;
+            padding: 10px;
+            border-radius: 15px;
+            max-width: 75%;
+            width: fit-content;
+            word-wrap: break-word;
+            box-sizing: border-box;
+        }
+        .message.received {
+            text-align: left;
+            background-color: #d1daca;
+            align-self: flex-start;
+        }
+        .message.sent {
+            text-align: left;
+            background-color: #dcf8c6;
+            align-self: flex-end;
+            border: 1px solid #34b7f1;
+            margin-left: auto;
+        }
+        .timestamp {
+            font-size: 12px;
+            color: #999;
+            margin-top: 5px;
+            text-align: right;
+        }
+        .form-container {
+            width: 100%;
+            border-top: 1px solid #ccc;
+            padding: 10px;
+            background-color: #5e8c8c;
+            display: none; /* Initially hidden */
+            align-items: center;
+
+        }
+
+        .form-container textarea {
+            flex: 1;
+            width: 350px;
+            resize: none;
+            height: 20px;
+            border-radius: 20px;
+            padding: 10px;
+            border: 1px solid #ccc;
+        }
+        .form-container button {
+            width: 80px;
+            height: 40px;
+            border-radius: 20px;
+            margin-left: 145px;
+            margin-top: -1px;
+            margin-bottom: -50px;
+            background-color: #2F4F4F;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            transform: translateY(-20px);
+            align-self: flex-end;
+
+
+        }
+        .form-container button:hover {
+            background-color: #34b7f1;
+        }
+        .form-container button:active {
+            background-color: #128c7e;
+        }
+        #version-table-button {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            background: lightskyblue;
+            color: #fff;
+            font-family: 'merriweather', serif;
+            border: none;
+            border-radius: 20px;
+            padding: 10px 20px;
+            cursor: pointer;
+            text-color : white ;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+        }
+        /* Define colors for each label */
+        .label-objection-prix {
+            background-color: #f8d7da; /* Light red */
+            color: #721c24; /* Dark red */
+        }
+
+        .label-options-affiliation {
+            background-color: #d4edda; /* Light green */
+            color: #155724; /* Dark green */
+        }
+
+        .label-negociation-en-cours {
+            background-color: #d1ecf1; /* Light blue */
+            color: #0c5460; /* Dark blue */
+        }
+
+        .label-confirmation-en-attente {
+            background-color: #fff3cd; /* Light yellow */
+            color: #856404; /* Dark yellow */
+        }
+
+        .label-attente-de-logo {
+            background-color: #e2e3e5; /* Light gray */
+            color: #6c757d; /* Dark gray */
+        }
+
+        .label-design-en-cours {
+            background-color: #cce5ff; /* Light blue */
+            color: #004085; /* Dark blue */
+        }
+
+        .label-design-approuvee {
+            background-color: #d4edda; /* Light green */
+            color: #155724; /* Dark green */
+        }
+
+        .label-commande-confirmer {
+            background-color: #CEFFC9; /* Light green */
+            color: #155724; /* Dark green */
+        }
+
+      .message {
+            /* Common styles for messages */
+        }
+
+        .unread {
+            background-color: #D7EED7; /* Green background for unread messages */
+            border-left: 5px solid #4caf50; /* Green left border for better visual indication */
+        }
+
+    </style>
+
+</head>
+<body>
+      <header>
+         <a href="{{ url_for('logout') }}" class="logout-button">Logout</a>
+    </header>
+    <div id="container">
+        <div id="sidebar">
+            <h2>Chats</h2>
+            <div id="conversation-list"></div>
+        </div>
+        <div id="chat">
+            <div id="chat-header">
+                <h3 id="sender-name"></h3>
+                <select id="label-dropdown" class="label-dropdown" style="display: none;">
+                    <option value="">Select Label</option>
+                    <option value="objection Prix">objection Prix</option>
+                    <option value="options Afilliation">options Afilliation</option>
+                    <option value="Negociation en cours">Negociation en cours</option>
+                    <option value="confirmation en attente">confirmation en attente</option>
+                    <option value="attente de logo">attente de logo</option>
+                    <option value="design en cours">design en cours</option>
+                    <option value="design approuvée">design approuvée</option>
+                    <option value="commande confirmer">commande confirmer</option>
+                </select>
+            </div>
+            <div id="message-container">
+                <!-- my messages gonna be inserted here -->
+            </div>
+            <div class="form-container">
+                <form id="respond-form" enctype="multipart/form-data">
+                    <textarea name="body" placeholder="Type your response here..."></textarea>
+                    <input type="file" id="file-input" name="file">
+                    <input type="hidden" name="to" id="to-field">
+                    <button type="submit">Send</button>
+                </form>
+                <div id="file-preview" style="display: none;">
+                    <img id="preview-image" style="max-width: 100px; max-height: 100px;" />
+                    <span id="preview-filename"></span>
+                    <button type="button" id="remove-file-button">Remove</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <button id="version-table-button" onclick="window.location.href='/table';">Historique</button>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.0/socket.io.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+$(document).ready(function() {
+    var socket = io();
+    var currentSender = '';
+    var chatOpen = false;
+
+    var labelColors = {
+        'objection Prix': 'label-objection-prix',
+        'options Afilliation': 'label-options-affiliation',
+        'Negociation en cours': 'label-negociation-en-cours',
+        'confirmation en attente': 'label-confirmation-en-attente',
+        'attente de logo': 'label-attente-de-logo',
+        'design en cours': 'label-design-en-cours',
+        'design approuvée': 'label-design-approuvee',
+        'commande confirmer': 'label-commande-confirmer'
+    };
+
+    function truncateMessage(message) {
+        var words = message.split(' ');
+        if (words.length > 2) {
+            return words.slice(0, 2).join(' ') + '...';
+        }
+        return message;
+    }
+
+    function loadConversations() {
+        $.getJSON('/get_conversations', function(data) {
+            var conversationList = $('#conversation-list');
+            conversationList.empty();
+            data.forEach(function(convo) {
+                if (convo.sender.trim() !== "") {
+                    var labelText = convo.label ? convo.label : 'No label';
+                    var labelClass = labelColors[convo.label] || '';
+
+                    var lastMessage = convo.last_message;
+                    if (lastMessage.startsWith('https://') || lastMessage.startsWith('http://')) {
+                        lastMessage = 'Media message';
+                    } else {
+                        lastMessage = truncateMessage(lastMessage);
+                    }
+
+                    // Add unread class if needed
+                    var unreadClass = convo.unread_count > 0 ? ' unread' : '';
+
+                    conversationList.append(
+                        '<div class="conversation' + unreadClass + '" data-sender="' + convo.sender + '">' +
+                            '<div class="sender-number">' + convo.sender + '</div>' +
+                            '<div class="last-message">' + lastMessage + '</div>' +
+                            '<div class="conversation-label ' + labelClass + '">' + labelText + '</div>' +
+                        '</div>'
+                    );
+                }
+            });
+        });
+    }
+
+    function loadMessages(sender) {
+        $.getJSON('/get_messages', { sender: sender }, function(data) {
+            var messageContainer = $('#message-container');
+            messageContainer.empty();
+            if (data.error) {
+                console.log(data.error);
+                return;
+            }
+            data.forEach(function(msg) {
+                var messageClass = msg.type === 'sent' || msg.type === 'sent_media' ? 'message sent' : 'message received';
+                var timestamp = msg.timestamp;
+                var messageHtml = '';
+
+                if (msg.message.startsWith('https://') || msg.message.startsWith('http://')) {
+                    messageHtml = '<a href="' + msg.message + '" target="_blank">View Media</a>';
+                } else if (msg.message) {
+                    messageHtml = '<p>' + msg.message + '</p>';
+                } else {
+                    messageHtml = '<p>[Message Undefined]</p>';
+                }
+
+                // Add unread class to new messages
+                var messageClassWithUnread = msg.is_read ? messageClass : messageClass + ' unread';
+
+                messageContainer.append(
+                    '<div class="' + messageClassWithUnread + '">' +
+                        messageHtml +
+                        '<div class="timestamp">' + timestamp + '</div>' +
+                    '</div>'
+                );
+            });
+        });
+    }
+
+  function markMessagesAsRead(sender) {
+    $.post('/mark_as_read', { conversation_id: sender }, function(response) {
+        console.log('Messages marked as read:', response);
+        // Optionally, update the conversation list to remove unread indicator
+        $('#conversation-list .conversation[data-sender="' + sender + '"]').removeClass('unread');
+    }).fail(function(xhr, status, error) {
+        console.error('Error marking messages as read:', error);
+    });
+}
+
+
+    function loadLabel(sender) {
+        $.getJSON('/get_conversations', function(data) {
+            var convo = data.find(convo => convo.sender === sender);
+            if (convo) {
+                $('#label-dropdown').val(convo.label);
+                var labelClass = labelColors[convo.label] || '';
+                $('#conversation-list .conversation[data-sender="' + sender + '"] .conversation-label').attr('class', 'conversation-label ' + labelClass).text(convo.label);
+            }
+        });
+    }
+
+    $('#conversation-list').on('click', '.conversation', function() {
+        var sender = $(this).data('sender');
+         $('#file-preview').hide();
+         $('#file-input').val('');
+
+        // Mark conversation as read and update UI
+        if (currentSender && chatOpen) {
+            markMessagesAsRead(currentSender);
+        }
+
+        $('.conversation').removeClass('active');
+        $(this).addClass('active');
+        $('#to-field').val(sender);
+        $('#sender-name').text(sender);
+        currentSender = sender;
+        chatOpen = true;
+        $('#label-dropdown').show();
+        $('.form-container').show();
+        loadMessages(sender);
+        loadLabel(sender);
+        //markMessagesAsRead(sender); // Mark conversation as read when opened
+    });
+
+    $('#respond-form').on('submit', function(e) { //old
+        e.preventDefault();
+        var formData = new FormData(this);
+        $.ajax({
+            url: '/respond',
+            type: 'POST',
+            data: formData,
+            contentType: false,
+            processData: false,
+            success: function(data) {
+                var lastMessageText = data.type === 'sent_media' ? 'Media message' : data.message;
+
+                // Update conversation list with new last message
+                var conversationElement = $('#conversation-list .conversation[data-sender="' + data.sender + '"]');
+                conversationElement.find('.last-message').text(lastMessageText);
+                conversationElement.remove(); // Remove from the current position
+                $('#conversation-list').prepend(conversationElement); // Move to the top
+
+                // Append the media to the chat
+                if (data.type === 'sent_media') {
+                    var messageElement = $('<div class="message sent">').html(
+                        '<a href="' + data.message + '" target="_blank">View Media</a>' +
+                        '<div class="timestamp">' + data.timestamp + '</div>'
+                    );
+                    $('#message-container').append(messageElement);
+                } else if (data.type === 'sent') {
+                    var messageElement = $('<div class="message sent">').html(
+                        '<p>' + data.message + '</p>' +
+                        '<div class="timestamp">' + data.timestamp + '</div>'
+                    );
+                    $('#message-container').append(messageElement);
+                }
+
+                // Clear the input fields and preview
+                $('textarea[name="body"]').val(''); // Clear the textarea
+                $('#file-input').val(''); // Clear the file input
+                $('#file-preview').hide(); // Hide file preview
+
+                // scroll to the bottom of the message container to see others
+                $('#message-container').scrollTop($('#message-container')[0].scrollHeight);
+            },
+            error: function(xhr, status, error) {
+                console.error('Error:', error);
+            }
+        });
+    });
+
+
+ $('#file-input').on('change', function() {
+        var file = this.files[0];
+        if (file) {
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                $('#preview-image').attr('src', e.target.result);
+                //$('#preview-filename').text(file.name);
+                $('#file-preview').show();
+            };
+            reader.readAsDataURL(file);
+        } else {
+            $('#file-preview').hide();
+        }
+    });
+
+    $('#remove-file-button').on('click', function() {
+        // Clear the file input
+        $('#file-input').val('');
+        // Hide the preview
+        $('#file-preview').hide();
+    });
+
+
+
+    $('#label-dropdown').on('change', function() {
+        var label = $(this).val();
+        $.post('/update_label', { sender: currentSender, label: label }, function(response) {
+            console.log('Label updated:', response);
+            var labelClass = labelColors[label] || '';
+            $('#conversation-list .conversation[data-sender="' + currentSender + '"] .conversation-label').attr('class', 'conversation-label ' + labelClass).text(label);
+        }).fail(function(xhr, status, error) {
+            console.error('Error updating label:', error);
+        });
+    });
+
+    socket.on('new_message', function(data) {
+    console.log('New message data:', data);
+
+    // Determine what text to display in the last-message area
+    var lastMessageText;
+    if (data.type === 'sent_media' || data.type === 'received_media') {
+        lastMessageText = 'Media message';
+    } else if (data.message.startsWith('https://') || data.message.startsWith('http://')) {
+        lastMessageText = 'Media message';
+    } else {
+        lastMessageText = truncateMessage(data.message);
+    }
+
+    // Update the conversation list with the new last message
+    var conversationElement = $('#conversation-list .conversation[data-sender="' + data.sender + '"]');
+    if (conversationElement.length === 0) {
+        // If the conversation doesn't exist, reload the conversations
+        loadConversations();
+    } else {
+        conversationElement.find('.last-message').text(lastMessageText);
+        conversationElement.remove(); // Remove from the current position
+        $('#conversation-list').prepend(conversationElement); // Move to the top
+    }
+
+    // If the chat window is open for this sender, append the message to the chat
+    if (currentSender === data.sender) {
+        var messageElement;
+        if (data.type === 'sent_media' || data.type === 'received_media') {
+            messageElement = $('<div>').addClass('message ' + (data.type === 'sent_media' ? 'sent' : 'received')).html(
+                '<a href="' + data.message + '" target="_blank">View Media</a>' +
+                '<div class="timestamp">' + data.timestamp + '</div>'
+            );
+        } else if (data.message.startsWith('https://') || data.message.startsWith('http://')) {
+            messageElement = $('<div>').addClass('message ' + (data.type === 'sent' ? 'sent' : 'received')).html(
+                '<a href="' + data.message + '" target="_blank">View Media</a>' +
+                '<div class="timestamp">' + data.timestamp + '</div>'
+            );
+        } else {
+            messageElement = $('<div>').addClass('message ' + (data.type === 'sent' ? 'sent' : 'received')).html(
+                '<p>' + data.message + '</p>' +
+                '<div class="timestamp">' + data.timestamp + '</div>'
+            );
+        }
+
+        $('#message-container').append(messageElement);
+        $('#message-container').scrollTop($('#message-container')[0].scrollHeight);
+    }
+
+    // Update unread indicator in the conversation list only if not currently active
+    var conversationElement = $('#conversation-list .conversation[data-sender="' + data.sender + '"]');
+    if (!conversationElement.hasClass('active')) {
+        conversationElement.addClass('unread');
+    }
+});
+
+
+
+    // Load conversations on page load
+    loadConversations();
+});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Message Dashboard</title>
+    <!-- Include Socket.IO library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.0/socket.io.min.js"></script>
+    <!-- Include jQuery library -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.js"></script>
+     <style>
+     @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap');
+     @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap');
+
+        .logout-button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            padding: 10px 20px;
+            background: lightskyblue;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+            font-size: 12px;
+            font-family: 'merriweather', serif;
+        }
+        .logout-button:hover {
+            background: deepskyblue; /* Darker red on hover */
+        }
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+
+        h1 {
+            text-align: center;
+            margin-top: 20px;
+            color: #333;
+        }
+
+        table {
+            width: 90%;
+            margin: 20px auto;
+            border-collapse: collapse;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            background-color: #fff;
+        }
+
+        table th, table td {
+            padding: 15px;
+            text-align: left;
+            border: 2px solid #ddd;
+        }
+
+        table th {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        table td {
+            border-bottom: 3px solid #aaa;
+        }
+
+        table tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        .sender-cell {
+            font-weight: bold;
+            color: #4CAF50;
+        }
+
+        .label-dropdown {
+            padding: 5px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .respond-cell {
+            vertical-align: top;
+        }
+
+        .respond-form textarea {
+            width: 100%;
+            height: 60px;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            resize: none;
+        }
+
+        .respond-form button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .respond-form button:hover {
+            background-color: #45a049;
+        }
+        #download{
+         font-family: 'merriweather', serif;
+         background: lightskyblue;
+         color: #fff;
+        }
+    </style>
+</head>
+<body>
+ <header>
+         <button id="download" class="download-button">Download Pdf</button>
+         <a href="{{ url_for('logout') }}" class="logout-button">Logout</a>
+    </header>
+    <h1>Message Dashboard</h1>
+    <table border="1" id="load">
+        <thead>
+            <tr>
+                <th>Sender</th>
+                <th>Label</th>
+                <th>Timestamp</th>
+                <th>Messages</th>
+                <th>Respond</th>
+            </tr>
+        </thead>
+        <tbody id="messages-table">
+            <!-- Existing messages will be inserted here by Flask -->
+            {% for sender, msgs in messages.items() %}
+                <tr data-sender="{{ sender }}">
+                    <td rowspan="{{ msgs|length }}" class="sender-cell">{{ sender }}</td>
+                    <td rowspan="{{ msgs|length }}" class="label-cell">
+                         <select class="label-dropdown">
+                            <option value="">Select Label</option>
+                            <option value="objection Prix" {% if msgs[0].label == 'objection Prix' %}selected{% endif %}>objection Prix</option>
+                            <option value="options Afilliation" {% if msgs[0].label == 'options Afilliation' %}selected{% endif %}>options Afilliation</option>
+                            <option value="Negociation en cours" {% if msgs[0].label == 'Negociation en cours' %}selected{% endif %}>Negociation en cours</option>
+                            <option value="confirmation en attente" {% if msgs[0].label == 'confirmation en attente' %}selected{% endif %}>confirmation en attente</option>
+                            <option value="attente de logo" {% if msgs[0].label == 'attente de logo' %}selected{% endif %}>attente de logo</option>
+                            <option value="design en cours" {% if msgs[0].label == 'design en cours' %}selected{% endif %}>design en cours</option>
+                            <option value="design approuvée" {% if msgs[0].label == 'design approuvée' %}selected{% endif %}>design approuvée</option>
+                            <option value="commande confirmer" {% if msgs[0].label == 'commande confirmer' %}selected{% endif %}>commande confirmer</option>
+                            <option value="attente de logo" {% if msgs[0].label == 'attente de logo' %}selected{% endif %}>attente de logo</option>
+                            <option value="design en cours" {% if msgs[0].label == 'design en cours' %}selected{% endif %}>design en cours</option>
+                        </select>
+                    </td>
+                    <td>{{ msgs[0].timestamp }}</td>
+                    <td>
+                        {% if msgs[0].type == 'received' %}
+                            <b>Received:</b> {{ msgs[0].message }}
+                        {% else %}
+                            <b>Sent:</b> {{ msgs[0].message }}
+                        {% endif %}
+                    </td>
+                    <td rowspan="{{ msgs|length }}" class="respond-cell">
+                        <form class="respond-form">
+                            <input type="hidden" name="to" value="{{ sender }}">
+                            <textarea name="body" placeholder="Type your response here..."></textarea><br>
+                            <button type="submit">Send</button>
+                        </form>
+                    </td>
+                </tr>
+                {% for msg in msgs[1:] %}
+                    <tr data-sender="{{ sender }}">
+                        <td>{{ msg.timestamp }}</td>
+                        <td>
+                            {% if msg.type == 'received' %}
+                                <b>Received:</b> {{ msg.message }}
+                            {% else %}
+                                <b>Sent:</b> {{ msg.message }}
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <script>
+        // Initialize the Socket.IO connection
+        var socket = io();
+
+        // Function to create a new message row
+        function createMessageRow(data, isSenderNew) {
+            var newRow = document.createElement('tr');
+            newRow.setAttribute('data-sender', data.sender);
+
+            if (isSenderNew) {
+                var senderCell = document.createElement('td');
+                senderCell.rowSpan = 1;
+                senderCell.className = 'sender-cell';
+                senderCell.textContent = data.sender;
+                newRow.appendChild(senderCell);
+
+                var labelCell = document.createElement('td');
+                labelCell.rowSpan = 1;
+                labelCell.className = 'label-cell';
+                labelCell.innerHTML = `<select class="label-dropdown">
+                    <option value="">Select Label</option>
+                    <option value="lab1">Label 1</option>
+                    <option value="lab2">Label 2</option>
+                    <option value="lab3">Label 3</option>
+                    <option value="lab4">Label 4</option>
+                    <option value="lab5">Label 5</option>
+                    <option value="lab6">Label 6</option>
+                    <option value="lab7">Label 7</option>
+                    <option value="lab8">Label 8</option>
+                    <option value="lab9">Label 9</option>
+                    <option value="lab10">Label 10</option>
+                </select>`;
+                newRow.appendChild(labelCell);
+            }
+
+            var timestampCell = document.createElement('td');
+            timestampCell.textContent = data.timestamp;
+            newRow.appendChild(timestampCell);
+
+            var messageCell = document.createElement('td');
+            if (data.type === 'received') {
+                messageCell.innerHTML = '<b>Received:</b> ' + data.message;
+            } else {
+                messageCell.innerHTML = '<b>Sent:</b> ' + data.message;
+            }
+            newRow.appendChild(messageCell);
+
+            if (isSenderNew) {
+                var respondCell = document.createElement('td');
+                respondCell.rowSpan = 1;
+                respondCell.className = 'respond-cell';
+                respondCell.innerHTML = `<form class="respond-form">
+                    <input type="hidden" name="to" value="${data.sender}">
+                    <textarea name="body" placeholder="Type your response here..."></textarea><br>
+                    <button type="submit">Send</button>
+                </form>`;
+                newRow.appendChild(respondCell);
+            }
+
+            return newRow;
+        }
+
+        // Listen for 'new_message' events from the server
+        socket.on('new_message', function(data) {
+            var table = document.getElementById('messages-table');
+            var existingRow = document.querySelector('tr[data-sender="' + data.sender + '"]');
+
+            if (existingRow) {
+                // Find the last row for the sender and insert a new row after it
+                var senderRows = document.querySelectorAll('tr[data-sender="' + data.sender + '"]');
+                var lastRow = senderRows[senderRows.length - 1];
+                var newRow = createMessageRow(data, false);
+                lastRow.parentNode.insertBefore(newRow, lastRow.nextSibling);
+
+                // Update rowspan attributes
+                var senderCell = existingRow.querySelector('.sender-cell');
+                var respondCell = existingRow.querySelector('.respond-cell');
+                var labelCell = existingRow.querySelector('.label-cell');
+                senderCell.rowSpan++;
+                respondCell.rowSpan++;
+                labelCell.rowSpan++;
+            } else {
+                var newRow = createMessageRow(data, true);
+                var firstRow = table.querySelector('tr');
+                table.insertBefore(newRow, firstRow);
+            }
+        });
+
+        // Handle form submission with AJAX
+        $(document).on('submit', '.respond-form', function(event) {
+            event.preventDefault();  // Prevent the default form submission
+
+            var form = $(this);
+            var formData = form.serialize();
+
+            $.ajax({
+                url: '/respond',
+                method: 'POST',
+                data: formData,
+                success: function(response) {
+                    // Emit an event to update the table in real-time
+                    var to = form.find('input[name="to"]').val();
+                    var body = form.find('textarea[name="body"]').val();
+                    var timestamp = new Date().toLocaleString();
+                    var data = {sender: to, timestamp: timestamp, message: body, type: 'sent'};
+                    socket.emit('new_message', data);
+                    form.find('textarea[name="body"]').val('');
+                }
+            });
+        });
+
+        // Handle label updates with AJAX
+        $(document).on('change', '.label-dropdown', function() {
+            var sender = $(this).closest('tr').data('sender');
+            var label = $(this).val();
+
+            $.ajax({
+                url: '/update_label',
+                method: 'POST',
+                data: { sender: sender, label: label },
+                success: function(response) {
+                    console.log('Label updated:', response);
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error updating label:', error);
+                }
+            });
+        });
+
+         window.onload = function() {
+          document.getElementById("download")
+            .addEventListener("click", () => {
+              const load = this.document.getElementById("load");
+              console.log(load);
+              console.log(window);
+              html2pdf().from(load).save();
+
+            });
+        };
+
+    </script>
+</body>
+</html>
